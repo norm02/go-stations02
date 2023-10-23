@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strconv"
@@ -43,8 +44,8 @@ func (h *TODOHandler) Update(ctx context.Context, req *model.UpdateTODORequest) 
 
 // Delete handles the endpoint that deletes the TODOs.
 func (h *TODOHandler) Delete(ctx context.Context, req *model.DeleteTODORequest) (*model.DeleteTODOResponse, error) {
-	_ = h.svc.DeleteTODO(ctx, nil)
-	return &model.DeleteTODOResponse{}, nil
+	err := h.svc.DeleteTODO(ctx, req.IDs)
+	return &model.DeleteTODOResponse{}, err
 }
 
 func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -84,29 +85,27 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		   return
 		   }
 	case "POST":
-	req := &model.CreateTODORequest{}
-	if err:= json.NewDecoder(r.Body).Decode(req); 
-	   err!=nil{
-		log.Println(err)
+		req := &model.CreateTODORequest{}
+		if err:= json.NewDecoder(r.Body).Decode(req); 
+	   	err!=nil{
 		w.WriteHeader(http.StatusInternalServerError)
-	   return
-	}
-	if req.Subject == ""{
-		w.WriteHeader(http.StatusBadRequest)
-	   return
-	}
-	res,err:= h.Create(r.Context(),req)
-	if err != nil {
-	    w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(res); err != nil {
-		log.Println(err)
-		w.WriteHeader(http.StatusInternalServerError)
-	   return
-	   }
+	   	   return
+		   }
+		if req.Subject == ""{
+			w.WriteHeader(http.StatusBadRequest)
+	   	    return
+		    }
+		res,err:= h.Create(r.Context(),req)
+		if err != nil {
+	    	w.WriteHeader(http.StatusInternalServerError)
+			return
+			}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(res); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+	   	    return
+	   		}
 	case "PUT":
 		req := &model.UpdateTODORequest{}
 		if err:= json.NewDecoder(r.Body).Decode(req); 
@@ -127,7 +126,31 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		if err := json.NewEncoder(w).Encode(res); err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		   return
+		   }
+	case "DELETE":
+		req := &model.DeleteTODORequest{}
+		if err:= json.NewDecoder(r.Body).Decode(req); 
+		   err!=nil{
 			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		   return
+		}
+		if len(req.IDs) == 0 {
+			w.WriteHeader(http.StatusBadRequest)
+		   return
+		}
+		res,err:= h.Delete(r.Context(),req)
+		var errnotfound *model.ErrNotFound
+		if errors.As(err, &errnotfound) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(res); err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 		   return
 		   }
@@ -135,4 +158,5 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 }
+
 
