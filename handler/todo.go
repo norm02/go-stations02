@@ -80,13 +80,13 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		   return
 		}
-		if req.Subject == "" {
+		if req.Subject == "" || req.ID == 0 {
 			w.WriteHeader(http.StatusBadRequest)
 		   return
 		}
 		res,err:= h.Update(r.Context(),req)
 		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.WriteHeader(http.StatusNotFound)
 			return
 		}
 		w.Header().Set("Content-Type", "application/json")
