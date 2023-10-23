@@ -80,7 +80,7 @@ func (h *TODOHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		   return
 		}
-		if req.Subject == "" || req.ID == 0{
+		if req.Subject == "" {
 			w.WriteHeader(http.StatusBadRequest)
 		   return
 		}

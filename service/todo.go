@@ -5,7 +5,6 @@ import (
 	"database/sql"
 
 	"github.com/TechBowl-japan/go-stations/model"
-	"github.com/mattn/go-sqlite3"
 )
 
 // A TODOService implements CRUD of TODO entities.
@@ -42,7 +41,7 @@ func (s *TODOService) CreateTODO(ctx context.Context, subject, description strin
 	}
 
 	row := s.db.QueryRowContext(ctx, confirm, id)
-	savedTODO := model.TODO{ID:int(id)}
+	savedTODO := model.TODO{ID:int64(id)}
 	if err := row.Scan(&savedTODO.Subject, &savedTODO.Description, &savedTODO.CreatedAt, &savedTODO.UpdatedAt);
 	 err != nil {
 		return nil, err
@@ -68,10 +67,6 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 		confirm = `SELECT subject, description, created_at, updated_at FROM todos WHERE id = ?`
 	)
 
-	if subject == "" {
-		return nil, sqlite3.ErrConstraint
-	}
-
 	stmt, err := s.db.PrepareContext(ctx, update)
 	if err != nil {
 		return nil, err
@@ -84,12 +79,16 @@ func (s *TODOService) UpdateTODO(ctx context.Context, id int64, subject, descrip
 	}
 
 	rowId, err := result.RowsAffected()
+	if err != nil{
+		return nil, err
+	}
+
 	if rowId ==0 {
 		return nil, &model.ErrNotFound{}
 	}
 
 	row := s.db.QueryRowContext(ctx, confirm, id)
-	savedTODO := model.TODO{ID:int(id)}
+	savedTODO := model.TODO{ID:int64(id)}
 	if err := row.Scan(&savedTODO.Subject, &savedTODO.Description, &savedTODO.CreatedAt, &savedTODO.UpdatedAt);
 	 err != nil {
 		return nil, err
