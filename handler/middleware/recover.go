@@ -14,9 +14,9 @@ func Recover(h http.Handler) http.Handler {
 			if err := recover(); err != nil {
 				w.Header().Set("Content-Type", "application/json; charset=utf-8")
 				w.WriteHeader(http.StatusNotFound)
-				s := fmt.Sprintf("%v", err)
-				m := map[string]string{"status": s}
-				if err := json.NewEncoder(w).Encode(m); err != nil {
+				status := fmt.Sprintf("%v", err)
+				msg := map[string]string{"status": status}
+				if err := json.NewEncoder(w).Encode(msg); err != nil {
 					fmt.Println(err)
 				}
 			}

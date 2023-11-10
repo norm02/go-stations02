@@ -2,6 +2,7 @@ package router
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/TechBowl-japan/go-stations/handler"
@@ -22,6 +23,14 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 	mux.Handle("/do-panic",middleware.Recover(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		panic("surely panic")
 	})))
+
+	mux.Handle("/os",middleware.StoreOS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		os,err := middleware.RegisterOS(r.Context())
+		if err!= nil{
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+		fmt.Println(os)
+})))
 
 	return mux
 
