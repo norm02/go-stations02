@@ -40,9 +40,9 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 		fmt.Println(os)
 	})))
 
-	mux.Handle("/accesslog",middleware.AccessLogger(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+	mux.Handle("/accesslog",middleware.StoreOS(middleware.AccessLogger(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		fmt.Println("accesslog is written")
-})))
+}))))
 
 	return mux
 
