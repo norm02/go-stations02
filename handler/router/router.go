@@ -20,16 +20,28 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 	todoHandler := handler.NewTODOHandler(todoService)
 	mux.HandleFunc("/todos", todoHandler.ServeHTTP)
 
-	mux.Handle("/do-panic",middleware.Recover(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+	/*
+	//"/do-panic"にアクセスすると、panicするmutex
+	mux.HandleFunc("/do-panic",http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		panic("surely panic")
+	}))
+	*/
+
+	//"/do-panic"にアクセスしても、recoverしてpanicしないmutex
+	mux.Handle("/do-panic",middleware.Recover(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		panic("recover panic")
 	})))
 
 	mux.Handle("/os",middleware.StoreOS(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
-		os,err := middleware.RegisterOS(r.Context())
+		os,err := middleware.CtxOS(r.Context())
 		if err!= nil{
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 		fmt.Println(os)
+	})))
+
+	mux.Handle("/accesslog",middleware.AccessLogger(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		fmt.Println("accesslog is written")
 })))
 
 	return mux

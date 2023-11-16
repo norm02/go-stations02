@@ -8,8 +8,8 @@ import (
 	"github.com/mileusna/useragent"
 )
 
-type storedKey string
-const k storedKey = "UserOS"
+type storedKey struct{}
+var k storedKey
 
 func StoreOS(h http.Handler)http.Handler{
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -23,7 +23,7 @@ func StoreOS(h http.Handler)http.Handler{
 	return http.HandlerFunc(fn)
 }
 
-func RegisterOS(ctx context.Context) (string,error){
+func CtxOS(ctx context.Context) (string,error){
 	v := ctx.Value(k)
 	if v == nil {
 		return "", fmt.Errorf("os not found: %s", k)

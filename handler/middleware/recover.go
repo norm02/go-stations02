@@ -16,8 +16,9 @@ func Recover(h http.Handler) http.Handler {
 				w.WriteHeader(http.StatusNotFound)
 				status := fmt.Sprintf("%v", err)
 				msg := map[string]string{"status": status}
-				if err := json.NewEncoder(w).Encode(msg); err != nil {
-					fmt.Println(err)
+				m,err:=json.Marshal(msg)
+				if err!=nil{
+					fmt.Println(m)
 				}
 			}
 		}()
