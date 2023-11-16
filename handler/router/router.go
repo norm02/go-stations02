@@ -42,7 +42,13 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 
 	mux.Handle("/accesslog",middleware.StoreOS(middleware.AccessLogger(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		fmt.Println("accesslog is written")
-}))))
+	}))))
+
+    mux.Handle("/userauth",middleware.Basicauth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		w.WriteHeader(http.StatusOK)
+		w.Header().Set("Content-Type", "application/text")
+		w.Write([]byte("basicauth is permissioned"))
+    })))
 
 	return mux
 
