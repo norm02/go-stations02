@@ -48,7 +48,7 @@ func NewRouter(todoDB *sql.DB) *http.ServeMux {
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/text")
 		w.Write([]byte("basicauth is permissioned"))
-    })))
+    }),"ユーザー名とパスワードを入力してください。"))
 
 	return mux
 

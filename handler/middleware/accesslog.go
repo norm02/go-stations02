@@ -12,11 +12,10 @@ type AccessLog struct{
 	Path string `json:"path"`
 	OS string `json:"os"`
 }
-//next handlerできていないので実装する
 func AccessLogger (h http.Handler)http.Handler{
 	fn := func(w http.ResponseWriter, r *http.Request){
-		accesstime := time.Now()
 		h.ServeHTTP(w,r)
+		accesstime := time.Now()
 		os,err := CtxOS(r.Context())
 		if err!=nil{
 			fmt.Println(err)
